@@ -21,7 +21,15 @@
 
 <body class="fixed-sn mdb-skin-custom">
     <div class="container" id="app">
+
         <h1>星云批量转账助手</h1>
+        <p>
+            <a href="https://explorer.nebulas.io/#/address/n1jGFUQpqgSUnz9dzkzVJh1HyA6raDZ5hGx" target="_blank">合约</a>
+            <a href="#" data-toggle="modal" data-target="#contactModal">联系作者</a>
+        </p>
+
+
+
         <!-- Leave a reply -->
         <div class="card-header border-0 font-weight-bold">
             {{transferOrder}}
@@ -104,15 +112,14 @@
                     <div class="modal-body">
                         <div class="row d-flex justify-content-center align-items-center">
                             <p class="pt-3 pr-2 pl-2">
-								未检测到星云钱包，请前往星云官网下载安装钱包插件！
-								如果您已安装钱包插件，请确认是否启用了该插件！
-							</p>
+                                未检测到星云钱包，请前往星云官网下载安装钱包插件！ 如果您已安装钱包插件，请确认是否启用了该插件！
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-		
+
         <!--顶部支付提示-->
         <div class="modal fade top" id="payModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
             <div class="modal-dialog modal-frame modal-top" role="document">
@@ -141,7 +148,7 @@
             </div>
         </div>
 
-		<!--转账失败提示-->
+        <!--转账失败提示-->
         <div class="modal fade" id="failModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-sm modal-notify modal-danger" role="document">
                 <!--Content-->
@@ -169,7 +176,7 @@
             </div>
         </div>
 
-		<!--转账成功提示-->
+        <!--转账成功提示-->
         <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-notify modal-success" role="document">
                 <!--Content-->
@@ -187,14 +194,14 @@
                             <thead>
                                 <tr>
                                     <th>地址</th>
-									<th>数量</th>
+                                    <th>数量</th>
                                     <th>结果</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(trans,index) in transactionResults">
                                     <td>{{ trans.address }}</td>
-									<td>{{ trans.amount }}</td>
+                                    <td>{{ trans.amount }}</td>
                                     <td v-if="trans.result">
                                         <i class="fa fa-check text-success"></i>
                                     </td>
@@ -240,6 +247,33 @@
             </div>
         </div>
 
+        <div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-notify modal-primary" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">联系作者</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+                        <i class="fa fa-envelope-o fa-4x animated rotateIn"></i>
+                        <p>如果您在使用该应用时有任何疑问与问题，请给我发送邮件：
+                            <strong>chenbaiyu0414@gmail.com</strong>
+                            <p>我很乐意帮助您解决问题</p>
+                        </p>
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <button class="btn btn-outline-success" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+
         <table class="table">
             <thead>
                 <tr>
@@ -279,9 +313,9 @@
                 <div class="col-md-4 mb-2">
                     <button class="btn btn-primary btn-block ml-0" data-toggle="modal" data-target="#transferModal">{{ createTransaction }}</button>
                 </div>
-				<div class="col-md-4 mb-2">
-					<button class="btn btn-danger btn-block ml-0" @click="clearTransactions">{{ clear }}</button>
-				</div>
+                <div class="col-md-4 mb-2">
+                    <button class="btn btn-danger btn-block ml-0" @click="clearTransactions">{{ clear }}</button>
+                </div>
                 <div class="col-md-4">
                     <button class="btn btn-green btn-block ml-0" @click="checkTransfer">{{ transfer }}</button>
                 </div>
