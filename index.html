@@ -1,3 +1,365 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>星云批量转账助手</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/mdb.min.css" />
+    <link rel="stylesheet" href="css/style.min.css" />
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body class="fixed-sn mdb-skin-custom">
+    <div class="container" id="app">
+
+        <h1>星云批量转账助手</h1>
+        <p>
+            <a href="https://explorer.nebulas.io/#/address/n1jGFUQpqgSUnz9dzkzVJh1HyA6raDZ5hGx" target="_blank">合约</a>
+            <a href="https://github.com/Heasn/NebBatchTransfer" target="_blank">GitHub</a>
+			<a href="#" data-toggle="modal" data-target="#contactModal">联系作者</a>
+        </p>
+
+
+
+        <!-- Leave a reply -->
+        <div class="card-header border-0 font-weight-bold">
+            {{transferOrder}}
+        </div>
+
+        <div class="modal fade" id="transferModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-notify modal-primary modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <p class="heading lead">{{ transferModalTitle }}</p>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" class="white-text">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="md-form">
+                            <input v-model="address" type="text" class="form-control mt-0 pl-0" onchange="validateAddress(this);" id="addressInput" />
+                            <label>{{transferAddress}}</label>
+                        </div>
+                        <div class="md-form">
+                            <input v-model="amount" type="number" class="form-control mt-0 pl-0" onchange="validateAmount(this);" id="amountInput" />
+                            <label>{{transferAmount}}</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-primary" @click="addTransaction">{{ createTransaction }}</button>
+                        <button type="button" class="btn btn-link" data-dismiss="modal">{{ cancelTransaction }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">{{transferOrder}}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>转账地址</th>
+                                    <th>转账金额</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(transaction,index) in transactions">
+                                    <td>{{ transaction.address }}</td>
+                                    <td>{{ transaction.amount.toNumber() }}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3">
+                                        <h5>
+                                            总额(NAS)：
+                                            <span class="font-weight-bold" style="color: #3fa044;">{{total.toNumber()}}</span>
+                                        </h5>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-green" data-toggle="modal" data-target="#payModal" data-dismiss="modal" @click="doTransfer">确认转账</button>
+                        <button class="btn btn-outline-green" data-dismiss="modal">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--钱包提示-->
+        <div class="modal fade top" id="walletExtensionModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-frame modal-top" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row d-flex justify-content-center align-items-center">
+                            <p class="pt-3 pr-2 pl-2">
+                                未检测到星云钱包，请前往星云官网下载安装钱包插件！ 如果您已安装钱包插件，请确认是否启用了该插件！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--顶部支付提示-->
+        <div class="modal fade top" id="payModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-frame modal-top" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row d-flex justify-content-center align-items-center">
+                            <p class="pt-3 pr-2">请在星云钱包内完成支付</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--顶部交易提示-->
+        <div class="modal fade top" id="transactionModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-frame modal-top" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="row d-flex justify-content-center align-items-center">
+                            <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
+                            <span class="sr-only">Loading...</span>
+                            <p class="pt-3 pr-2">转帐中，请耐心等待</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--转账失败提示-->
+        <div class="modal fade" id="failModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-notify modal-danger" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">转账失败</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+
+                        <i class="fa fa-times fa-4x animated rotateIn"></i>
+                        <p>
+                            {{transactionFailReason}}
+                        </p>
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <button class="btn btn-outline-danger" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+
+        <!--转账成功提示-->
+        <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-notify modal-success" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">转账成功</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+                        <i class="fa fa-check fa-4x animated rotateIn"></i>
+                        <p>（如果有交易转账失败，剩余NAS将会退回至您的账户）</p>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>地址</th>
+                                    <th>数量</th>
+                                    <th>结果</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(trans,index) in transactionResults">
+                                    <td>{{ trans.address }}</td>
+                                    <td>{{ trans.amount }}</td>
+                                    <td v-if="trans.result">
+                                        <i class="fa fa-check text-success"></i>
+                                    </td>
+                                    <td v-else>
+                                        <i class="fa fa-times text-danger"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <button class="btn btn-outline-success" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+
+<div class="modal fade" id="clearInvalidModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-notify modal-danger" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">无法清除转账记录</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+                        <p>当前无转账记录可清除</p>
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <button class="btn  btn-danger waves-effect" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>		
+		
+        <div class="modal fade" id="tranferInvalidModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-notify modal-danger" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">无法转账</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+
+                        <p>请添加转账记录后再转账</p>
+
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <button class="btn  btn-danger waves-effect" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+
+        <div class="modal fade" id="contactModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-notify modal-primary" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">联系作者</p>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+                        <i class="fa fa-envelope-o fa-4x animated rotateIn"></i>
+                        <p>如果您在使用该应用时有任何疑问与问题，请给我发送邮件：
+                            <strong>chenbaiyu0414@gmail.com</strong>
+                            <p>我很乐意帮助您解决问题</p>
+                        </p>
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer flex-center">
+                        <button class="btn btn-outline-success" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th width="50%">转账地址</th>
+                    <th width="40%">
+                        转账金额
+                        <i>(NAS)</i>
+                    </th>
+                    <th width="10%">#</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(transaction,index) in transactions">
+                    <td>{{ transaction.address }}</td>
+                    <td>{{ transaction.amount.toNumber() }}</td>
+                    <td>
+                        <a @click="deleteTransaction(index)" style="color: #5a95f5;">
+                            <i class="fa fa-remove"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3">
+                        <h5>
+                            总额(NAS)：
+                            <span class="font-weight-bold" style="color: #3fa044;">{{total.toNumber()}}</span>
+                        </h5>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="col-md-6 offset-md-3">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <button class="btn btn-primary btn-block ml-0" data-toggle="modal" data-target="#transferModal">{{ createTransaction }}</button>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <button class="btn btn-danger btn-block ml-0" @click="clearTransactions">{{ clear }}</button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-green btn-block ml-0" @click="checkTransfer">{{ transfer }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/mdb.min.js"></script>
+    <script src="js/bignumber.min.js"></script>
+    <script src="js/nebPay.js"></script>
+    <script src="js/nebulas.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+=======
 <!DOCTYPE html>
 <html>
 
@@ -335,4 +697,5 @@
 
 </body>
 
+>>>>>>> a4420d152547561706c7b468a93ab82757c451f7
 </html>
