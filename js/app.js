@@ -66,8 +66,12 @@ var app = new Vue({
             this.transactions.splice(index, 1);
         },
         clearTransactions: function () {
-            this.transactions.splice(0, this.transactions.length);
-            this.total = new BigNumber(0);
+            if (this.transactions.length > 0) {
+                this.transactions.splice(0, this.transactions.length);
+                this.total = new BigNumber(0);
+            } else {
+                $("#clearInvalidModal").modal('show');
+            }
         },
         checkTransfer: function () {
             if (this.transactions.length < 1) {
